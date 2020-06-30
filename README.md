@@ -1,2 +1,5 @@
 # SDCE-ComputerVision
-Module 01 of Self-Driving Car engineer Nano Degree. Computer vision
+Module 01 Computer vision
+
+First project of the Self-Driving car engineer Nano Degree. 
+Detecting Lanes in a image and in a video
