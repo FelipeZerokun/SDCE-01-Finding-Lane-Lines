@@ -15,28 +15,35 @@ The goals / steps of this project are the following:
 [//]: # (Image References)
 
 [image1]: ./examples/grayscale.jpg "Grayscale"
-[image2]: ./test_images/solidWhiteCurve_raw.png "Road lines"
-[image3]: ./test_images/solidWhiteCurve_lanedetection.png "Road Pipeline"
+[image2]: ./test_images/solidWhiteCurve_raw.png "Road lines Solid White"
+[image3]: ./test_images/solidYellowCurve_raw.png "Road lines Solid Yellow"
+[image4]: ./test_images/solidWhiteCurve_lanedetection.png "Road Pipeline Solid White"
+[image5]: ./test_images/solidYellowCurve_lanedetection.png "Road Pipeline Solid Yellow"
 ---
 
 ### Reflection
 
 ### 1. Describe your pipeline. As part of the description, explain how you modified the draw_lines() function.
 
-My pipeline consisted of seven steps. For each step, I used an independent function, First, I converted the images to grayscale, then I used Gaussian blur
-to eliminate most non-linearities. After that, I used the Canny function for edge detection in the blur image. The fourth step is to define an Area of Interest, 
-in which the program will be searching for lines. In this case, I built a polygon of the same size of the road. I will build a black mask to use over the canny image
-so I get a new image with only the road lines on it. 
-Next step is to use the Hough algorithm to identify the lines in the new image. This function will return an array with all the X and Y points of the detected lines. It is important to try different parameters to see which ones give us better results. With these points I can draw the road lines in a blank image. Finally, we add the color image and the blank image with the drawn lines.
+My pipeline consisted of seven steps. For each step, I used an independent function, 
+1.- First, I converted the images to grayscale,
+2.- then I used Gaussian blur to eliminate most non-linearities. 
+3.- After that, I used the Canny function for edge detection in the blur image. 
+4.- The fourth step is to define an Area of Interest, in which the program will be searching for lines. In this case, I built a polygon of the same shape of the road. I will build a black mask to use over the canny image so I get a new image with only the road lines on it. 
+5.- Next step is to use the Hough algorithm to identify the lines in the new image. This function will return an array with all the X and Y points of the detected lines. It is important to try different parameters to see which ones give us better results. 
+6.- With the Hough lines, we can calculate and draw lines in a blank image
+7.- Finally, we add the color image and the blank image with the drawn lines.
 
 ![alt text][image2]
+![alt text][image3]
 
 In order to draw a single line on the left and right lanes, I modified the draw_lines() function by calculating the slope and Y intercept for each line found by the Hough algorithm.
 I classified each line by their slope. Positive slopes are for the right lane and negative slopes are for the left lane. To draw a consistent line, I added the slopes and Y intercepts for each line for all the lines in the Hough array and divided by the total number of lines on each lane. There were cases when the algorithm detected no lines, and
 a division by zero error popped up. To solve this I stored the previous slope value and in case no lines were detected I used the previous slope to build the line. Using the
 equation for a straight line Y = mX + b, and Y point reference as bottom of the image (540) and Y at the end of the road (337) I calculated the X values. 
 
-![alt text][image3]
+![alt text][image4]
+![alt text][image5]
 
 #### Challenge 
 I encounteres 3 main troubles in the challenge. The first one is that the size of the challenge video is different than the other videos. Since I used raw values for the vertices of the polygon, I changed them to percentages. For example, the left bottom vertice will be 0.05(5%) of the total length of X and 1(100%) of the total lenght of Y.
