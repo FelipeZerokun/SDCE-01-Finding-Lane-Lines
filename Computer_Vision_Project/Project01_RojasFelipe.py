@@ -13,8 +13,6 @@ import numpy as np
 import math
 import cv2 ## OPEN CV library
 
-
-
 def gray_scale(img):
     #Transform the Color 3D image into gray scale 2D image
     return cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
@@ -121,12 +119,16 @@ def draw_lanes(img, lines, color=[0, 0,255], thickness = 12):
     else:
         average_left_m = last_left_m
         average_left_b = last_left_b
-         
-    Y_bottom = 540
-    Y_top = 337
-    X_bottom = int((Y_bottom - average_left_b)/average_left_m)
-    X_top = int((Y_top - average_left_b)/average_left_m)
-    cv2.line(img,(X_bottom,Y_bottom),(X_top,Y_top),color, thickness)     
+    
+    
+    imshape = img.shape
+
+    Y_bottom = int(imshape[0])
+    Y_top = int(imshape[0]*0.63)
+    X_bottom = (Y_bottom - average_left_b)/average_left_m
+    X_top = (Y_top - average_left_b)/average_left_m
+    if((X_bottom>= 0) and (X_bottom<= 960) and ((X_top>= 0) and (X_top<= 960))):
+        cv2.line(img,(int(X_bottom),Y_bottom),(int(X_top),Y_top),color, thickness)     
 
     #RIGHT LANE     
     if right_counter != 0:
@@ -138,9 +140,10 @@ def draw_lanes(img, lines, color=[0, 0,255], thickness = 12):
         average_right_m = last_right_m
         average_right_b = last_right_b
          
-    X_bottom = int((Y_bottom - average_right_b)/average_right_m)
-    X_top = int((Y_top - average_right_b)/average_right_m)
-    cv2.line(img,(X_bottom,Y_bottom),(X_top,Y_top),color, thickness) 
+    X_bottom = (Y_bottom - average_right_b)/average_right_m
+    X_top = (Y_top - average_right_b)/average_right_m
+    if((X_bottom>= 0) and (X_bottom<= 960) and ((X_top>= 0) and (X_top<= 960))):
+        cv2.line(img,(int(X_bottom),Y_bottom),(int(X_top),Y_top),color, thickness) 
               
 
 def add_weighted(img, color_image, alpha = 0.8, beta = 1):
@@ -148,26 +151,29 @@ def add_weighted(img, color_image, alpha = 0.8, beta = 1):
     return cv2.addWeighted(color_image, alpha, img, beta, 0)
 
 # Function that follows step by step the lane detection method
-def lane_detection(img, selector=0):
+def lane_detection(img, selector=1):
     #Create a copy of the original image
     color_image = np.copy(img)
     #First, we transform the color image to a 2D gray scale image
     gray = gray_scale(img)
+    plt.imshow(gray, cmap = 'gray')
     #Then, we apply Gaussian bluring to the image
     blur_image = gaussian_blur(gray, 7)
+    plt.imshow(blur_image, cmap = 'gray')
     #Now we use the Canny method for Edge detection
     canny_image = canny(blur_image, 50, 150)
+    plt.imshow(canny_image, cmap = 'gray')
     
     #We define the vertices for our Area of Interest Polygon
     '''vertices = np.array([[(48, 540),    #bottom left vertice
                           (436, 337),   #top left vertice
                           (533, 337),   #top right vertice
                           (955,540)]])  #bottom right vertice'''
-    imshape = image1.shape
-    vertices = np.array([[(int(imshape[1]/20), int(imshape[0])),         #bottom left vertice (X, Y)
-                          (int(imshape[1]/2.2), int(imshape[0]/1.7)),    #top left vertice 
-                          (int(imshape[1]/1.8), int(imshape[0]/1.7)),    #top right vertice
-                          (int(imshape[1]/1.05), int(imshape[0]))]])     #bottom right vertice   
+    imshape = img.shape
+    vertices = np.array([[(int(imshape[1]*0.05), int(imshape[0]*0.92)),     #bottom left vertice (X, Y)
+                          (int(imshape[1]*0.47), int(imshape[0]*0.60)),     #top left vertice 
+                          (int(imshape[1]*0.47), int(imshape[0]*0.60)),     #top right vertice
+                          (int(imshape[1]*0.99), int(imshape[0]*0.92))]])   #bottom right vertice   
     
     #Ignore everything but the Area of interest in our Canny image
     masked_image = region_of_interst(canny_image, vertices)
@@ -177,8 +183,8 @@ def lane_detection(img, selector=0):
     rho = 1 # distance resolution in pixels of the Hough grid
     theta = np.pi/180 # angular resolution in radians of the Hough grid
     threshold = 20    # minimum number of votes (intersections in Hough grid cell)
-    min_line_length = 30 #minimum number of pixels making up a line
-    max_line_gap = 3  # maximum gap in pixels between connectable line segments
+    min_line_length = 35 #minimum number of pixels making up a line
+    max_line_gap = 5  # maximum gap in pixels between connectable line segments
     
     #Identify and draw the lines
     lines = hough_lines(masked_image, selector, rho, theta, threshold, min_line_length,  
@@ -186,7 +192,7 @@ def lane_detection(img, selector=0):
     lanes_image = add_weighted(lines, color_image, 0.8, 1)
     plt.imshow(lanes_image)
     return lanes_image
-    
+        
 
 ################################################################################    
 ########### Testing the Lane detection function for Broken lines ###############
@@ -247,6 +253,7 @@ yellow_clip.write_videofile(yellow_output, audio=False)
 
 ############################## C H A L L E N G E ##############################
 challenge_output = 'test_videos_output/challenge_raw.mp4'
+#clip3 = VideoFileClip("test_videos/challenge.mp4").subclip(0,2)
 clip3 = VideoFileClip("test_videos/challenge.mp4")
 challenge_clip = clip3.fl_image(lane_detection) #NOTE: this function expects color images!!
 challenge_clip.write_videofile(challenge_output, audio=False)
@@ -256,9 +263,9 @@ challenge_clip.write_videofile(challenge_output, audio=False)
 ###### Testing the Lane detection function to draw pipelines in the lanes ######
 ################################################################################
 
-image1 = mpimg.imread('test_images/solidWhiteCurve.jpg')
-plt.imshow(image1)
-image1_broken_lines = lane_detection(image1, 1)
+img = mpimg.imread('test_images/solidWhiteCurve.jpg')
+plt.imshow(img)
+image1_broken_lines = lane_detection(img, 1)
 mpimg.imsave("test_images/solidWhiteCurve_lanedetection.png", image1_broken_lines)
 
 image2 = mpimg.imread('test_images/solidWhiteRight.jpg')
@@ -295,7 +302,6 @@ from moviepy.editor import VideoFileClip
 
 white_output = 'test_videos_output/solidWhiteRight.mp4'
 yellow_output = 'test_videos_output/solidYellowLeft.mp4'
-challenge_output = 'test_videos_output/challenge.mp4'
 
 ## To speed up the testing process you may want to try your pipeline on a shorter subclip of the video
 ## To do so add .subclip(start_second,end_second) to the end of the line below

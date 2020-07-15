@@ -219,6 +219,11 @@ challenge_clip.write_videofile(challenge_output, audio=False)
 ########### Usamos la función para dibujar los carriles de la via ################
 ##################################################################################
 
+#La mayor parte de las lineas van a tener pendientes muy similares, sin embargo hay
+#casos donde una linea "extraña", es identificada por el algoritmo y cambia el promedio
+#de la pendiente en dicha iteración bastante. Si se usa una pendiente global para el
+#promedio de la pendiente
+
 imagen1 = mpimg.imread('test_images/solidWhiteCurve.jpg')  
 image1_entrecortada = detecion_lineas(imagen1)
 plt.imshow(imagen1)
