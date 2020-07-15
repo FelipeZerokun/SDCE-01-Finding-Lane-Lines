@@ -54,8 +54,6 @@ are between 0 and the max width of the image.
 
 
 
-
-
 ### 2. Identify potential shortcomings with your current pipeline
 
 
@@ -65,5 +63,6 @@ substantially change the mean of the pipelines and thus, tilt the pipeline in wr
 
 ### 3. Suggest possible improvements to your pipeline
 
-To improve my pipeline, I could implement an error reduction algorithm, where if the mean of the slopes of the lines in certain frame of the video has high variance compares
+To improve my pipeline, I could implement an error reduction algorithm, where if the mean of the slopes of the lines in certain frame of the video has high variance compared
 to other means, ignore or correct that error so the pipeline does not tilt in a wrong way.
+Another way could be implementing color detection for the program to detect only white and yellow lines on the road. With both edge detection and color detection, we could discard false positives lines on the road and only take in account the lines delimiting 
