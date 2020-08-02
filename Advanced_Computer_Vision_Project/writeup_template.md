@@ -46,7 +46,7 @@ I will use these variables, obj_p and img_p everytime I want to find the Road la
 
 With the object and image points, I used the `cv2.undistort()` function to correct the distortion in my images. To test this function, first I undistorted one of the chess Board images in the /camera_cal function
 
-![alt text][image2]
+![alt text][image1]
 
 
 ### Pipeline (single images)
@@ -55,7 +55,7 @@ With the object and image points, I used the `cv2.undistort()` function to corre
 
 I define a function which takes the original image, and the object poins and image points from the camera calibration step. With the `cv2.calibrateCamera` function and the cv2.undistort I got the following result: 
 
-![alt text][image3]
+![alt text][image2]
 
 #### 2. Binary Image
 
